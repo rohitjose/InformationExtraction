@@ -53,7 +53,14 @@ single = data
 
 grammar = r"""
   BORN:
-    {<VB.>+<IN>}          # Chunk everything
+    {<VB.><VB.><IN>*}          # Chunk everything
+    {<VBN><IN>}
+  PARENTS:
+    {<PERSON><.>*<CC><.>*<PERSON>}
+  """
+birthdate = r"""
+  BIRTHDATE:
+    {<PERSON><.|..|...>*<BORN><.|..|...>*<DATE>}          # Chunk everything
   """
 
 for sentence in single:
@@ -68,4 +75,9 @@ for sentence in single:
     token_list = build_sentence_tree(tagged_sentence)
     cp = nltk.RegexpParser(grammar)
     print(text)
-    print(cp.parse(token_list))
+    #print(cp.parse(token_list))
+    TREE = cp.parse(token_list)
+    #TREE.draw()
+    birth = nltk.RegexpParser(birthdate)
+    print(birth.parse(TREE))
+
