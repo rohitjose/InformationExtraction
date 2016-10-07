@@ -56,7 +56,7 @@ grammar = r"""
     {<VB.><VB.><IN>*}          # Chunk everything
     {<VBN><IN>}
   PARENTS:
-    {<IN><PERSON><.|..|...|CARDINAL|ORDINAL>*<CC><.><.|..|...|CARDINAL|ORDINAL>*<PERSON>}
+    {<IN><.|..|...|DATE>*<PERSON><.|..|...|DATE|-.RB->*<CC><.|..|...|DATE>*<PERSON>}
   """
 birthdate = r"""
   BIRTHDATE:
