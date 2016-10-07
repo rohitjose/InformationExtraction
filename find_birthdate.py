@@ -56,11 +56,12 @@ grammar = r"""
     {<VB.><VB.><IN>*}          # Chunk everything
     {<VBN><IN>}
   PARENTS:
-    {<PERSON><.>*<CC><.>*<PERSON>}
+    {<IN><PERSON><.|..|...|CARDINAL|ORDINAL>*<CC><.><.|..|...|CARDINAL|ORDINAL>*<PERSON>}
   """
 birthdate = r"""
   BIRTHDATE:
-    {<PERSON><.|..|...>*<BORN><.|..|...>*<DATE>}          # Chunk everything
+    {<PERSON><.|..|...|CARDINAL|ORDINAL>*<BORN><.|..|...>*<DATE>}          # Chunk everything
+    {<BORN><GPE|DATE><.|..|...|CARDINAL|ORDINAL>*<PERSON>}
   """
 
 for sentence in single:
