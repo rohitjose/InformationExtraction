@@ -73,17 +73,20 @@ def extract_date_relations(sentence):
 
 def extract_parent_relations(sentence):
     parents = r"""
-          BORN:
-            {<VB.><VB.><PERSON>*}          # Chunk everything
-            {<VBN><IN>}
-          ADDNINFO:
-    		{<-LRB-><.|..|PERSON|DATE|GPE>*<-RRB->}
-          PARENTS:
-            {<IN><.|..|...|DATE|NORP|HYPH|CARDINAL|ORDINAL>*<PERSON><.|..|...|DATE|ADDNINFO|HYPH>*<CC><.|..|...|DATE|PRP$|BORN>*<PERSON>}
-    		{<BORN><IN><PERSON>}
-          RELATION:
-            {<BORN>*<.|..|...|DATE|NORP|>*<PERSON><BORN>*<.|..|...|DATE|NORP|ADDNINFO|LOCATION|WORK_OF_ART|CARDINAL>*<PARENTS>}
-          """
+              BORN:
+                {<VB.><VB.><PERSON>*}          # Chunk everything
+                {<VBN><IN>}
+    			}<VBN><IN><PERSON>{
+              ADDNINFO:
+        		{<-LRB-><.|..|PERSON|DATE|GPE>*<-RRB->}
+              PARENTS:
+                {<IN><.|..|...|DATE|NORP|HYPH|CARDINAL|ORDINAL|PRP$>*<PERSON><.|..|...|DATE|ADDNINFO|HYPH>*<CC><.|..|...|DATE|PRP$|BORN>*<PERSON>}
+        		{<BORN><IN><PERSON>}
+        		{<BORN><PERSON><CC><PERSON>}
+        		{<DT|NN|IN>+<PERSON><CC>*<PERSON>*}
+              RELATION:
+                {<BORN>*<.|..|...|DATE|NORP|>*<PERSON><BORN>*<.|..|...|DATE|NORP|ADDNINFO|LOCATION|WORK_OF_ART|CARDINAL>*<PARENTS>}
+              """
     results = []
     predicate = "HasParent"
 

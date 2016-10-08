@@ -55,17 +55,17 @@ def load_data(filename):
 
 def extract_parent_relations(sentence):
     parents = r"""
-              BORN:
-                {<VB.><VB.><PERSON>*}          # Chunk everything
-                {<VBN><IN>}
-              ADDNINFO:
-        		{<-LRB-><.|..>*<PERSON|DATE>*<-RRB->}
-              PARENTS:
-                {<IN><.|..|...|DATE|NORP|HYPH|CARDINAL|ORDINAL>*<PERSON><.|..|...|DATE|ADDNINFO>*<CC><.|..|...|DATE|PRP$|BORN>*<PERSON>}
-        		{<BORN><IN><PERSON>}
-              RELATION:
-                {<BORN>*<.|..|...|DATE|NORP|>*<PERSON><BORN>*<.|..|...|DATE|NORP|ADDNINFO|LOCATION|WORK_OF_ART|CARDINAL>*<PARENTS>}
-              """
+             BORN:
+               {<VB.><VB.><PERSON>*}          # Chunk everything
+               {<VBN><IN>}
+             ADDNINFO:
+       		{<-LRB-><.|..|PERSON|DATE|GPE>*<-RRB->}
+             PARENTS:
+               {<IN><.|..|...|DATE|NORP|HYPH|CARDINAL|ORDINAL>*<PERSON><.|..|...|DATE|ADDNINFO|HYPH>*<CC><.|..|...|DATE|PRP$|BORN>*<PERSON>}
+       		{<BORN><IN><PERSON>}
+             RELATION:
+               {<BORN>*<.|..|...|DATE|NORP|>*<PERSON><BORN>*<.|..|...|DATE|NORP|ADDNINFO|LOCATION|WORK_OF_ART|CARDINAL>*<PARENTS>}
+             """
     results = []
     predicate = "HasParent"
 
