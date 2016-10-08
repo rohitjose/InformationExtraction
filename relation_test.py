@@ -83,7 +83,7 @@ def extract_parent_relations(sentence):
                 {<IN><.|..|...|DATE|NORP|HYPH|CARDINAL|ORDINAL|PRP$>*<PERSON><.|..|...|DATE|ADDNINFO|HYPH>*<CC><.|..|...|DATE|PRP$|BORN>*<PERSON>}
         		{<BORN><IN><PERSON>}
         		{<BORN><PERSON><CC><PERSON>}
-        		{<DT|NN|IN>+<PERSON><CC>*<PERSON>*}
+        		{<DT|NN|IN|DATE>+<PERSON><CC>*<PERSON>*}
               RELATION:
                 {<BORN>*<.|..|...|DATE|NORP|>*<PERSON><BORN>*<.|..|...|DATE|NORP|ADDNINFO|LOCATION|WORK_OF_ART|CARDINAL>*<PARENTS>}
               """
