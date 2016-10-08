@@ -73,7 +73,7 @@ def extract_parent_relations(sentence):
 
     token_list = build_sentence_tree(tagged_sentence)
     cp = nltk.RegexpParser(parents,loop=3)
-    #print(text)
+    print(text)
     PARENT_RELATION = cp.parse(token_list)
     print(PARENT_RELATION)
     print("Person List")
