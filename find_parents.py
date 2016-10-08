@@ -82,7 +82,9 @@ def extract_parent_relations(sentence):
         person_list = []
         for person in subtree.subtrees(filter=lambda t: t.label() == 'PERSON' and t.label()!='ADDNINFO'):
             person_list.append(" ".join([x[0] for x in getLeaves(person)]))
-        #print(person_list)
+        print(person_list)
+        # if(len(person_list))>3:
+        #     del person_list[1]
         if(person_list!=[]):
             subject = person_list[0]
             for parent in person_list[1:]:
