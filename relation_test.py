@@ -1,6 +1,3 @@
-import sys
-import json
-import os
 import nltk
 from relation import Relation
 

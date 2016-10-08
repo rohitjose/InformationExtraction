@@ -58,10 +58,6 @@ data = load_data(filename)
 
 single = data
 
-parents = r"""
-  PARENTS:
-    {<IN><.|..|...|DATE>*<PERSON><.|..|...|DATE|-.RB->*<CC><.|..|...|DATE>*<PERSON>}
-  """
 birthdate = r"""
   BORN:
     {<VB.><VB.><IN|PERSON>*}          # Chunk everything
