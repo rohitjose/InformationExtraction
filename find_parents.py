@@ -62,7 +62,7 @@ def extract_parent_relations(sentence):
       PARENTS:
         {<IN><.|..|...|DATE|NORP|HYPH|CARDINAL|ORDINAL>*<PERSON><.|..|...|DATE|ADDNINFO>*<CC><.|..|...|DATE>*<PERSON>}
       RELATION:
-        {<BORN>*<.|..|...|DATE|NORP|>*<PERSON><BORN>*<.|..|...|DATE|NORP|ADDNINFO|LOCATION|WORK_OF_ART>*<PARENTS>}
+        {<BORN>*<.|..|...|DATE|NORP|>*<PERSON><BORN>*<.|..|...|DATE|NORP|ADDNINFO|LOCATION|WORK_OF_ART|CARDINAL>*<PARENTS>}
       """
     results = []
     predicate = "HasParent"
@@ -75,21 +75,22 @@ def extract_parent_relations(sentence):
     cp = nltk.RegexpParser(parents,loop=3)
     #print(text)
     PARENT_RELATION = cp.parse(token_list)
-    #print(PARENT_RELATION)
-    #print("Person List")
+    print(PARENT_RELATION)
+    print("Person List")
     relation_list = []
     for subtree in PARENT_RELATION.subtrees(filter=lambda t: t.label() == 'RELATION'):
+        #print(subtree.leaves())
         person_list = []
         for person in subtree.subtrees(filter=lambda t: t.label() == 'PERSON' and t.label()!='ADDNINFO'):
             person_list.append(" ".join([x[0] for x in getLeaves(person)]))
-        print(person_list)
-        # if(len(person_list))>3:
-        #     del person_list[1]
+        #print(person_list)
         if(person_list!=[]):
             subject = person_list[0]
             for parent in person_list[1:]:
                 rel = Relation(subject, predicate, parent)
                 relation_list.append(rel)
+    if(len(relation_list)==3):
+        del relation_list[1]
     return relation_list
 
 

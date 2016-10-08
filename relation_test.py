@@ -67,47 +67,45 @@ def extract_date_relations(sentence):
             date = " ".join(relation_dict["DATE"])
             rel = Relation(person, predicate, date)
             results.append(rel)
-        else:
-            print(text)
-            # print(BIRTH_DATE_RELATION)
-
     return results
 
 def extract_parent_relations(sentence):
     parents = r"""
+      BORN:
+        {<VB.><VB.><PERSON>*}          # Chunk everything
+        {<VBN><IN>}
+      ADDNINFO:
+		{<-LRB-><.|..>*<PERSON|DATE>*<-RRB->}
       PARENTS:
-        {<IN><.|..|...|DATE>*<PERSON><.|..|...|DATE|-.RB->*<CC><.|..|...|DATE>*<PERSON>}
+        {<IN><.|..|...|DATE|NORP|HYPH|CARDINAL|ORDINAL>*<PERSON><.|..|...|DATE|ADDNINFO>*<CC><.|..|...|DATE>*<PERSON>}
+      RELATION:
+        {<BORN>*<.|..|...|DATE|NORP|>*<PERSON><BORN>*<.|..|...|DATE|NORP|ADDNINFO|LOCATION|WORK_OF_ART|CARDINAL>*<PARENTS>}
       """
     results = []
-    predicate = "DateOfBirth"
+    predicate = "HasParent"
 
     annotation = sentence["annotation"]
     text = sentence["text"]
     tagged_sentence = [(x[1], x[3], x[4]) for x in annotation]
 
     token_list = build_sentence_tree(tagged_sentence)
-    cp = nltk.RegexpParser(parents, loop=2)
-    # print(text)
+    cp = nltk.RegexpParser(parents,loop=3)
+    #print(text)
     PARENT_RELATION = cp.parse(token_list)
-    # print(BIRTH_DATE_RELATION)
-    # TREE = cp.parse(token_list)
-    # #TREE.draw()
-    # birth = nltk.RegexpParser(birthdate)
-    # print(birth.parse(TREE))
-    for subtree in PARENT_RELATION.subtrees(filter=lambda t: t.label() == 'PARENTS'):
-        relation_dict = []
-        for nestedtree in subtree.subtrees(filter=lambda t: t.label() == 'PERSON'):
-            if (nestedtree.label() == 'PERSON'):
-                relation_dict["PERSON"] = [x[0] for x in getLeaves(nestedtree)]
-            if (nestedtree.label() == 'DATE'):
-                relation_dict["DATE"] = [x[0] for x in getLeaves(nestedtree)]
-        if ("PERSON" in relation_dict and "DATE" in relation_dict):
-            person = " ".join(relation_dict["PERSON"])
-            date = " ".join(relation_dict["DATE"])
-            rel = Relation(person, predicate, date)
-            results.append(rel)
-        else:
-            print(text)
-            # print(BIRTH_DATE_RELATION)
-
-    return results
+    # print(PARENT_RELATION)
+    # print("Person List")
+    relation_list = []
+    for subtree in PARENT_RELATION.subtrees(filter=lambda t: t.label() == 'RELATION'):
+        #print(subtree.leaves())
+        person_list = []
+        for person in subtree.subtrees(filter=lambda t: t.label() == 'PERSON' and t.label()!='ADDNINFO'):
+            person_list.append(" ".join([x[0] for x in getLeaves(person)]))
+        #print(person_list)
+        if(person_list!=[]):
+            subject = person_list[0]
+            for parent in person_list[1:]:
+                rel = Relation(subject, predicate, parent)
+                relation_list.append(rel)
+    if(len(relation_list)==3):
+        del relation_list[1]
+    return relation_list
