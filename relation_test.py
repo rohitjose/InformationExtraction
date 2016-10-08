@@ -21,7 +21,9 @@ def build_sentence_tree(tagged_sentence):
             label = iob[2:]
             phrase.append(word)
 
-    #print(token_list)
+    if (phrase != []):
+        token_list.append(nltk.Tree(label, phrase))
+
     return token_list
 
 def getLeaves(tree):
@@ -71,16 +73,17 @@ def extract_date_relations(sentence):
 
 def extract_parent_relations(sentence):
     parents = r"""
-      BORN:
-        {<VB.><VB.><PERSON>*}          # Chunk everything
-        {<VBN><IN>}
-      ADDNINFO:
-		{<-LRB-><.|..>*<PERSON|DATE>*<-RRB->}
-      PARENTS:
-        {<IN><.|..|...|DATE|NORP|HYPH|CARDINAL|ORDINAL>*<PERSON><.|..|...|DATE|ADDNINFO>*<CC><.|..|...|DATE>*<PERSON>}
-      RELATION:
-        {<BORN>*<.|..|...|DATE|NORP|>*<PERSON><BORN>*<.|..|...|DATE|NORP|ADDNINFO|LOCATION|WORK_OF_ART|CARDINAL>*<PARENTS>}
-      """
+          BORN:
+            {<VB.><VB.><PERSON>*}          # Chunk everything
+            {<VBN><IN>}
+          ADDNINFO:
+    		{<-LRB-><.|..|PERSON|DATE|GPE>*<-RRB->}
+          PARENTS:
+            {<IN><.|..|...|DATE|NORP|HYPH|CARDINAL|ORDINAL>*<PERSON><.|..|...|DATE|ADDNINFO|HYPH>*<CC><.|..|...|DATE|PRP$|BORN>*<PERSON>}
+    		{<BORN><IN><PERSON>}
+          RELATION:
+            {<BORN>*<.|..|...|DATE|NORP|>*<PERSON><BORN>*<.|..|...|DATE|NORP|ADDNINFO|LOCATION|WORK_OF_ART|CARDINAL>*<PARENTS>}
+          """
     results = []
     predicate = "HasParent"
 
@@ -96,16 +99,19 @@ def extract_parent_relations(sentence):
     # print("Person List")
     relation_list = []
     for subtree in PARENT_RELATION.subtrees(filter=lambda t: t.label() == 'RELATION'):
-        #print(subtree.leaves())
-        person_list = []
-        for person in subtree.subtrees(filter=lambda t: t.label() == 'PERSON' and t.label()!='ADDNINFO'):
-            person_list.append(" ".join([x[0] for x in getLeaves(person)]))
-        #print(person_list)
-        if(person_list!=[]):
-            subject = person_list[0]
-            for parent in person_list[1:]:
-                rel = Relation(subject, predicate, parent)
-                relation_list.append(rel)
-    if(len(relation_list)==3):
-        del relation_list[1]
+        subject = []
+        parent_names = []
+        ts = ()
+        for info in subtree:
+            if (type(info) != type(ts) and info.label() == 'PERSON'):
+                subject.extend([x[0] for x in info.leaves()])
+        for parents_rel in subtree.subtrees(filter=lambda t: t.label() == 'PARENTS'):
+            for node in parents_rel:
+                if(type(node)!= type(ts) and node.label()=='PERSON'):
+                    parent_names.append(" ".join([x[0] for x in node.leaves()]))
+        #print(subject)
+        #print(parent_names)
+        for name in parent_names:
+            rel = Relation(" ".join(subject), predicate, name)
+            relation_list.append(rel)
     return relation_list
