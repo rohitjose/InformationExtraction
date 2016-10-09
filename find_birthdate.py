@@ -67,13 +67,13 @@ data = load_data(filename)
 single = data
 
 birthdate = r"""
-      BORN:
-        {<VBD>?<VBN><IN|PERSON|CC>*}          # Chunk everything
-      BIRTHDATE:
-        {<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN><.|..|...|NORP|LOCATION|-.RB->*<DATE>}           # Chunk everything
-        {<DATE><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN>}
-        {<BORN><GPE|DATE>*<.|..|...|DATE|CARDINAL|ORDINAL|LOCATION|NORP>*<PERSON>}
-      """
+  BORN:
+    {<VBD>?<VBN><IN|PERSON|CC>*}          # Chunk everything
+  BIRTHDATE:
+    {<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION|-.RB->*<BORN><.|..|...|NORP|LOCATION|-.RB->*<DATE>}          # here
+    {<DATE><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN>}
+    {<BORN><GPE|DATE>*<.|..|...|DATE|CARDINAL|ORDINAL|LOCATION|NORP>*<PERSON>}
+  """
 results = []
 predicate = "DateOfBirth"
 for sentence in single:
@@ -82,7 +82,7 @@ for sentence in single:
     tagged_sentence = [(x[1],x[3],x[4]) for x in annotation]
 
     token_list = build_sentence_tree(tagged_sentence)
-    print(token_list)
+    #print(token_list)
     cp = nltk.RegexpParser(birthdate,loop=2)
     #print(text)
     BIRTH_DATE_RELATION  = cp.parse(token_list)

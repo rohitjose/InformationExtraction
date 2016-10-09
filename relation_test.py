@@ -43,7 +43,7 @@ def extract_date_relations(sentence):
       BORN:
         {<VBD>?<VBN><IN|PERSON|CC>*}          # Chunk everything
       BIRTHDATE:
-        {<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN><.|..|...|NORP|LOCATION|-.RB->*<DATE>}           # Chunk everything
+        {<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION|-.RB->*<BORN><.|..|...|NORP|LOCATION|-.RB-|BORN>*<DATE>}          # here
         {<DATE><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN>}
         {<BORN><GPE|DATE>*<.|..|...|DATE|CARDINAL|ORDINAL|LOCATION|NORP>*<PERSON>}
       """
