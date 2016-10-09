@@ -60,12 +60,12 @@ def extract_parent_relations(sentence):
                     {<VBN><IN>}
         			}<VBN><IN><PERSON>{
                   ADDNINFO:
-            		{<-LRB-><.|..|PERSON|DATE|GPE|BORN|PARENTS>*<-RRB->}
+            		{<-LRB-><.|..|PERSON|DATE|GPE>*<-RRB->}
                   PARENTS:
                     {<IN><.|..|...|DATE|NORP|HYPH|CARDINAL|ORDINAL|PRP$>*<PERSON><.|..|...|DATE|ADDNINFO|HYPH>*<CC><.|..|...|DATE|PRP$|BORN>*<PERSON>}
             		{<BORN><IN><PERSON>}
             		{<BORN><PERSON><CC><PERSON>}
-            		{<DT|NN|IN>+<PERSON><CC>*<PERSON>*}
+            		{<DT|NN|IN|DATE>+<PERSON><CC>*<PERSON>*}
                   RELATION:
                     {<BORN>*<.|..|...|DATE|NORP|>*<PERSON><BORN>*<.|..|...|DATE|NORP|ADDNINFO|LOCATION|WORK_OF_ART|CARDINAL>*<PARENTS>}
                   """

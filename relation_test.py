@@ -35,11 +35,11 @@ def getLeaves(tree):
 def extract_date_relations(sentence):
     birthdate = r"""
       BORN:
-        {<VB.><VB.><IN|PERSON>*}          # Chunk everything
-        {<VBN><IN>}
+        {<VBD>?<VBN><IN|PERSON|CC>*}          # Chunk everything
       BIRTHDATE:
-        {<PERSON><.|..|...|CARDINAL|ORDINAL>*<BORN><.|..|...>*<DATE>}          # Chunk everything
-        {<BORN><GPE|DATE>*<.|..|...|DATE|CARDINAL|ORDINAL>*<PERSON>}
+        {<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN><.|..|...|LOCATION|-.RB->*<DATE>}          # Chunk everything
+        {<DATE><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN>}
+        {<BORN><GPE|DATE>*<.|..|...|DATE|CARDINAL|ORDINAL|LOCATION|NORP>*<PERSON>}
       """
     results = []
     predicate = "DateOfBirth"

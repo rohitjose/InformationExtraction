@@ -59,13 +59,14 @@ data = load_data(filename)
 single = data
 
 birthdate = r"""
-  BORN:
-    {<VB.><VB.><IN|PERSON>*}          # Chunk everything
-    {<VBN><IN>}
-  BIRTHDATE:
-    {<PERSON><.|..|...|CARDINAL|ORDINAL>*<BORN><.|..|...>*<DATE>}          # Chunk everything
-    {<BORN><GPE|DATE>*<.|..|...|DATE|CARDINAL|ORDINAL>*<PERSON>}
-  """
+      BORN:
+        {<VBD><VBN><IN|PERSON|CC>*}          # Chunk everything
+        {<VBN><IN>}
+      BIRTHDATE:
+        {<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN><.|..|...|LOCATION>*<DATE>}          # Chunk everything
+        {<DATE><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN>}
+        {<BORN><GPE|DATE>*<.|..|...|DATE|CARDINAL|ORDINAL|LOCATION|NORP>*<PERSON>}
+      """
 results = []
 predicate = "DateOfBirth"
 for sentence in single:
@@ -82,6 +83,8 @@ for sentence in single:
     # #TREE.draw()
     # birth = nltk.RegexpParser(birthdate)
     # print(birth.parse(TREE))
+    print(text)
+    print(BIRTH_DATE_RELATION)
     for subtree in BIRTH_DATE_RELATION.subtrees(filter=lambda t: t.label() =='BIRTHDATE'):
         relation_dict={}
         for nestedtree in subtree.subtrees(filter=lambda t: t.label() in ['PERSON','DATE']):
@@ -93,12 +96,10 @@ for sentence in single:
             person = " ".join(relation_dict["PERSON"])
             date = " ".join(relation_dict["DATE"])
             rel = Relation(person, predicate, date)
-        else:
-            print(text)
-            #print(BIRTH_DATE_RELATION)
+            print(rel)
         results.append(rel)
 
-print(results)
+#print(results)
 
 
 
