@@ -18,8 +18,14 @@ def build_sentence_tree(tagged_sentence):
             else:
                 token_list.append(word)
         else:
-            label = iob[2:]
-            phrase.append(word)
+            if(label==iob[2:] or label==""):
+                label = iob[2:]
+                phrase.append(word)
+            else:
+                token_list.append(nltk.Tree(label, phrase))
+                label = ""
+                phrase = []
+                phrase.append(word)
 
     if (phrase != []):
         token_list.append(nltk.Tree(label, phrase))

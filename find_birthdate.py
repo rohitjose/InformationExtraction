@@ -40,10 +40,18 @@ def build_sentence_tree(tagged_sentence):
             else:
                 token_list.append(word)
         else:
-            label = iob[2:]
-            phrase.append(word)
+            if(label==iob[2:] or label==""):
+                label = iob[2:]
+                phrase.append(word)
+            else:
+                token_list.append(nltk.Tree(label, phrase))
+                label = ""
+                phrase = []
+                phrase.append(word)
 
-    #print(token_list)
+    if (phrase != []):
+        token_list.append(nltk.Tree(label, phrase))
+
     return token_list
 
 def getLeaves(tree):
@@ -62,7 +70,7 @@ birthdate = r"""
       BORN:
         {<VBD>?<VBN><IN|PERSON|CC>*}          # Chunk everything
       BIRTHDATE:
-        {<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN><.|..|...|LOCATION|-.RB->*<DATE>}          # Chunk everything
+        {<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN><.|..|...|NORP|LOCATION|-.RB->*<DATE>}           # Chunk everything
         {<DATE><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN>}
         {<BORN><GPE|DATE>*<.|..|...|DATE|CARDINAL|ORDINAL|LOCATION|NORP>*<PERSON>}
       """
@@ -74,6 +82,7 @@ for sentence in single:
     tagged_sentence = [(x[1],x[3],x[4]) for x in annotation]
 
     token_list = build_sentence_tree(tagged_sentence)
+    print(token_list)
     cp = nltk.RegexpParser(birthdate,loop=2)
     #print(text)
     BIRTH_DATE_RELATION  = cp.parse(token_list)
