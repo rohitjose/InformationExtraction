@@ -60,10 +60,9 @@ single = data
 
 birthdate = r"""
       BORN:
-        {<VBD><VBN><IN|PERSON|CC>*}          # Chunk everything
-        {<VBN><IN>}
+        {<VBD>?<VBN><IN|PERSON|CC>*}          # Chunk everything
       BIRTHDATE:
-        {<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN><.|..|...|LOCATION>*<DATE>}          # Chunk everything
+        {<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN><.|..|...|LOCATION|-.RB->*<DATE>}          # Chunk everything
         {<DATE><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN>}
         {<BORN><GPE|DATE>*<.|..|...|DATE|CARDINAL|ORDINAL|LOCATION|NORP>*<PERSON>}
       """
