@@ -1,6 +1,38 @@
 import nltk
 from relation import Relation
 
+def build_sentence_tree_parent(tagged_sentence):
+    """Builds the sentence tree based on the IOB tags for person and date"""
+    phrase=[]
+    label = ""
+    token_list = []
+    for token in tagged_sentence:
+        iob = token[2]
+        word = token[:-1]
+        if(iob=='O'):
+            if(phrase!=[]):
+                token_list.append(nltk.Tree(label,phrase))
+                label=""
+                phrase=[]
+                token_list.append(word)
+            else:
+                token_list.append(word)
+        else:
+            if(iob[2:] in ["PERSON","DATE"]):
+                if(label==iob[2:] or label==""):
+                    label = iob[2:]
+                    phrase.append(word)
+                else:
+                    token_list.append(nltk.Tree(label, phrase))
+                    label = ""
+                    phrase = []
+                    phrase.append(word)
+
+    if (phrase != []):
+        token_list.append(nltk.Tree(label, phrase))
+
+    return token_list
+
 def build_sentence_tree(tagged_sentence):
     """Builds the sentence tree based on the IOB tags for person and date"""
     phrase=[]
@@ -43,9 +75,9 @@ def extract_date_relations(sentence):
       BORN:
         {<VBD>?<VBN><IN|PERSON|CC>*}          # Chunk everything
       BIRTHDATE:
-        {<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION|-.RB->*<BORN><.|..|...|NORP|LOCATION|-.RB-|BORN>*<DATE>}          # here
-        {<DATE><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN>}
-        {<BORN><GPE|DATE>*<.|..|...|DATE|CARDINAL|ORDINAL|LOCATION|NORP>*<PERSON>}
+        {<PERSON><.|..|...|-.RB->*<BORN><.|..|...|-.RB-|BORN|PRP.>*<DATE>}          # here
+        {<DATE><.|..|...>*<PERSON><.|..|...>*<BORN>}
+        {<BORN><DATE>*<.|..|...|DATE>*<PERSON>}
       """
     results = []
     predicate = "DateOfBirth"
@@ -54,7 +86,7 @@ def extract_date_relations(sentence):
     text = sentence["text"]
     tagged_sentence = [(x[1], x[3], x[4]) for x in annotation]
 
-    token_list = build_sentence_tree(tagged_sentence)
+    token_list = build_sentence_tree_parent(tagged_sentence)
     cp = nltk.RegexpParser(birthdate, loop=2)
     # print(text)
     BIRTH_DATE_RELATION = cp.parse(token_list)
@@ -79,20 +111,18 @@ def extract_date_relations(sentence):
 
 def extract_parent_relations(sentence):
     parents = r"""
-              BORN:
-                {<VB.><VB.><PERSON>*}          # Chunk everything
-                {<VBN><IN>}
-    			}<VBN><IN><PERSON>{
-              ADDNINFO:
-        		{<-LRB-><.|..|PERSON|DATE|GPE>*<-RRB->}
-              PARENTS:
-                {<IN><.|..|...|DATE|NORP|HYPH|CARDINAL|ORDINAL|PRP$>*<PERSON><.|..|...|DATE|ADDNINFO|HYPH>*<CC><.|..|...|DATE|PRP$|BORN>*<PERSON>}
-        		{<BORN><IN><PERSON>}
-        		{<BORN><PERSON><CC><PERSON>}
-        		{<DT|NN|IN|DATE>+<PERSON><CC>*<PERSON>*}
-              RELATION:
-                {<BORN>*<.|..|...|DATE|NORP|>*<PERSON><BORN>*<.|..|...|DATE|NORP|ADDNINFO|LOCATION|WORK_OF_ART|CARDINAL>*<PARENTS>}
-              """
+                      BORN:
+                         {<VBD>?<VBN><IN|PERSON|CC>*}
+                      ADDNINFO:
+                		{<-LRB-><.|..|PERSON|DATE|BORN|PARENTS>*<-RRB->}
+                      PARENTS:
+                        {<IN><.|..|...|DATE|HYPH>*<PERSON><.|..|...|DATE|ADDNINFO|HYPH>*<CC><.|..|...|DATE|BORN|PRP.>*<PERSON>}
+                		{<BORN><IN><PERSON>}
+                		{<BORN>*<PERSON><CC><PERSON>}
+                		{<DT|NN|IN|DATE>+<PERSON><CC>*<PERSON>*}
+                      RELATION:
+                        {<BORN>*<.|..|...|DATE|ADDNINFO|PRP.>*<PERSON><BORN>*<.|..|...|DATE|ADDNINFO|BORN|PRP.>*<PARENTS>}
+                      """
     results = []
     predicate = "HasParent"
 
@@ -100,7 +130,7 @@ def extract_parent_relations(sentence):
     text = sentence["text"]
     tagged_sentence = [(x[1], x[3], x[4]) for x in annotation]
 
-    token_list = build_sentence_tree(tagged_sentence)
+    token_list = build_sentence_tree_parent(tagged_sentence)
     cp = nltk.RegexpParser(parents,loop=3)
     #print(text)
     PARENT_RELATION = cp.parse(token_list)

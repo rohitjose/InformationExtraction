@@ -40,14 +40,15 @@ def build_sentence_tree(tagged_sentence):
             else:
                 token_list.append(word)
         else:
-            if(label==iob[2:] or label==""):
-                label = iob[2:]
-                phrase.append(word)
-            else:
-                token_list.append(nltk.Tree(label, phrase))
-                label = ""
-                phrase = []
-                phrase.append(word)
+            if(iob[2:] in ["PERSON","DATE"]):
+                if(label==iob[2:] or label==""):
+                    label = iob[2:]
+                    phrase.append(word)
+                else:
+                    token_list.append(nltk.Tree(label, phrase))
+                    label = ""
+                    phrase = []
+                    phrase.append(word)
 
     if (phrase != []):
         token_list.append(nltk.Tree(label, phrase))
@@ -67,13 +68,13 @@ data = load_data(filename)
 single = data
 
 birthdate = r"""
-  BORN:
-    {<VBD>?<VBN><IN|PERSON|CC>*}          # Chunk everything
-  BIRTHDATE:
-    {<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION|-.RB->*<BORN><.|..|...|NORP|LOCATION|-.RB->*<DATE>}          # here
-    {<DATE><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN>}
-    {<BORN><GPE|DATE>*<.|..|...|DATE|CARDINAL|ORDINAL|LOCATION|NORP>*<PERSON>}
-  """
+      BORN:
+        {<VBD>?<VBN><IN|PERSON|CC>*}          # Chunk everything
+      BIRTHDATE:
+        {<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION|-.RB->*<BORN><.|..|...|NORP|LOCATION|-.RB-|BORN|PRP.>*<DATE>}          # here
+        {<DATE><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<PERSON><.|..|...|CARDINAL|ORDINAL|NORP|LOCATION>*<BORN>}
+        {<BORN><GPE|DATE>*<.|..|...|DATE|CARDINAL|ORDINAL|LOCATION|NORP>*<PERSON>}
+      """
 results = []
 predicate = "DateOfBirth"
 for sentence in single:
@@ -93,19 +94,20 @@ for sentence in single:
     # print(birth.parse(TREE))
     print(text)
     print(BIRTH_DATE_RELATION)
-    for subtree in BIRTH_DATE_RELATION.subtrees(filter=lambda t: t.label() =='BIRTHDATE'):
-        relation_dict={}
-        for nestedtree in subtree.subtrees(filter=lambda t: t.label() in ['PERSON','DATE']):
-            if(nestedtree.label()=='PERSON' and "PERSON" not in relation_dict):
-                relation_dict["PERSON"] = [x[0] for x in getLeaves(nestedtree)]
-            if(nestedtree.label()=='DATE'):
-                relation_dict["DATE"] = [x[0] for x in getLeaves(nestedtree)]
-        if("PERSON" in relation_dict and "DATE" in relation_dict):
-            person = " ".join(relation_dict["PERSON"])
-            date = " ".join(relation_dict["DATE"])
-            rel = Relation(person, predicate, date)
-            print(rel)
-        results.append(rel)
+    BIRTH_DATE_RELATION.draw()
+    # for subtree in BIRTH_DATE_RELATION.subtrees(filter=lambda t: t.label() =='BIRTHDATE'):
+    #     relation_dict={}
+    #     for nestedtree in subtree.subtrees(filter=lambda t: t.label() in ['PERSON','DATE']):
+    #         if(nestedtree.label()=='PERSON' and "PERSON" not in relation_dict):
+    #             relation_dict["PERSON"] = [x[0] for x in getLeaves(nestedtree)]
+    #         if(nestedtree.label()=='DATE'):
+    #             relation_dict["DATE"] = [x[0] for x in getLeaves(nestedtree)]
+    #     if("PERSON" in relation_dict and "DATE" in relation_dict):
+    #         person = " ".join(relation_dict["PERSON"])
+    #         date = " ".join(relation_dict["DATE"])
+    #         rel = Relation(person, predicate, date)
+    #         print(rel)
+    #     results.append(rel)
 
 #print(results)
 
