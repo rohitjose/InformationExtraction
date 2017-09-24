@@ -1,7 +1,5 @@
 # Information Extraction
 
-[TOC]
-
 
 
 ## Approach
